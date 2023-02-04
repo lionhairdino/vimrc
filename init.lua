@@ -1,13 +1,16 @@
 -- 2022.10.31 lionhairdino at gmail.com
--- 몇 가지만 지정해도 되는데, 테스트로 가능한 모든 걸 긁어온다. 용량은 무시할만 하다.
+--
 -- Haskell Language Server + LSP Native + Coq
 --
 -- ※ Coq은 증명 언어를 얘기하는 게 아니라, 자동 완성 플러그인 이름이다.
 -- Native가 아닌 Coc으로 설정할 때는 자동 완성이 따로 필요없지만,
 -- Native로 할 때는 필요하다.
 --
+-- 2023.2.4
+-- Coq에 알 수 없는 오류가 있어, mini.completion 쓸까도 했는데, 다른 많은 플러그인들이
+-- 디폴트로 nvim-cmp 설정을 언급한다. 지금은 자동 완성 엔진으로 nvim-cmp를 쓴다. 
 --
--- :Hoogle 명령어로 검색
+-- :Hoogle 후글 검색
 
 local set = vim.opt
 set.mouse = 'a'
@@ -42,12 +45,15 @@ set.printdevice = 'HP-LaserJet-1200'
 local Plug = vim.fn['plug#']
 vim.call('plug#begin', '~/.config/nvim/plugged')
 Plug 'junegunn/fzf'
+
 -- 이 자체가 lsp클라이언트가 아니라, 클라이언트는
 -- 빌트인 되어 있고, 이 건 설정을 도와준다.
 Plug 'neovim/nvim-lspconfig'
+
 -- 특정 기호등을 기준으로 정렬할 때 쓴다.
 -- :Tabularize /= (이렇게 하면 =을 기준으로 정렬된다.)
 Plug 'godlygeek/tabular'
+
 Plug 'preservim/vim-markdown'
 Plug('EdenEast/nightfox.nvim', { branch = 'main' })
 Plug 'marko-cerovac/material.nvim'
@@ -190,12 +196,14 @@ vim.api.nvim_create_autocmd(
 -- 점프키와 충돌 vim.keymap.set({'n'}, '<Tab>', 'za', {silent = true})
 vim.keymap.set({ 'n' }, 'k', 'gk', { silent = true })
 vim.keymap.set({ 'n' }, 'j', 'gj', { silent = true })
+
 -- Shift-BS는 작동하지 않고 있다. 이유는 아직 모른다.
 vim.keymap.set({ 'i' }, '<Shift-BS>', '<kDel>', { silent = true })
 vim.keymap.set({ 'i', 'n', 'v' }, '<leader>\\', ':Tnew<CR>', { silent = true })
 --vim.keymap.set({'n'}, '<Tab>', ':tabnext<CR>', {silent = true})
 --vim.keymap.set({'n'}, '<S-Tab>', ':tabprevious<CR>', {silent = true})
 --vim.keymap.set({'n','v','i'}, '<C-n>', ':NERDTreeToggle<CR>')
+
 vim.keymap.set('n', '<space>f',
   function() return require('telescope.builtin').find_files() end, { desc = 'Find Files' })
 vim.keymap.set('n', '<space>r',
@@ -603,9 +611,9 @@ local select_opts = { behavior = cmp.SelectBehavior.Select }
 
 cmp.setup({
   snippet = {
-    -- REQUIRED - you must specify a snippet engine
+    -- 여러 스니펫 엔진 중 snippy를 쓴다.
     expand = function(args)
-      require('snippy').expand_snippet(args.body) -- For `snippy` users.
+      require('snippy').expand_snippet(args.body)
     end,
   },
   window = {

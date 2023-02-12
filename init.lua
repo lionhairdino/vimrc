@@ -92,9 +92,9 @@ vim.api.nvim_create_autocmd(
 -- 현재 vim을 시작한 폴더를 current 디렉토리로 바꾸려 했는데,
 -- 작동하지 않는다.
 vim.api.nvim_create_autocmd(
-  { "BufNewFile", "InsertEnter" },
+  { "InsertEnter" },
   { pattern = "*",
-    command = "cd $PWD" }
+    command = ":cd %:h<CR>" }
 )
 vim.diagnostic.config({ virtual_text = true })
 

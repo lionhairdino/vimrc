@@ -15,7 +15,7 @@
 -- 디폴트로 nvim-cmp 설정을 언급한다. 지금은 자동 완성 엔진으로 nvim-cmp를 쓴다.
 --
 -- :Hoogle 후글 검색
-
+--
 local set = vim.opt
 set.mouse = 'a'
 set.number = true
@@ -67,8 +67,8 @@ vim.g['fzf_commits_log_options'] = '--graph --color=always --format="%C(auto)%h%
 vim.g['fzf_tags_command'] = 'ctags -R'
 -- [Commands] --expect expression for directly executing the command
 vim.g['fzf_commands_expect'] = 'ctrl-enter,ctrl-x'
-vim.g['mkdp_theme'] = 'light'
-
+vim.g['mkdp_theme'] = 'light' -- markdown preview 플러그인 테마 설정
+vim.g['mkdp_filetypes'] = { "markdown" }
 --vim.cmd.colorscheme('OceanicNext')
 --vim.g.material_style = "oceanic-next"
 -- 입력 모드일 때만 row를 표시하는 선line을 가린다.
@@ -89,13 +89,6 @@ vim.api.nvim_create_autocmd(
     command = "startinsert" }
 )
 
--- 현재 vim을 시작한 폴더를 current 디렉토리로 바꾸려 했는데,
--- 작동하지 않는다.
-vim.api.nvim_create_autocmd(
-  { "InsertEnter" },
-  { pattern = "*",
-    command = ":cd %:h<CR>" }
-)
 vim.diagnostic.config({ virtual_text = true })
 
 -- 점프키와 충돌
@@ -104,6 +97,7 @@ vim.keymap.set({ 'n' }, 'k', 'gk', { silent = true })
 vim.keymap.set({ 'n' }, 'j', 'gj', { silent = true })
 
 -- Shift-BS는 작동하지 않고 있다. 이유는 아직 모른다.
+-- GUI에서만 지정 가능한 키조합이라 한다.
 vim.keymap.set({ 'i' }, '<Shift-BS>', '<kDel>', { silent = true })
 vim.keymap.set({ 'i', 'n', 'v' }, '<leader>\\', ':Tnew<CR>', { silent = true })
 
@@ -134,7 +128,7 @@ vim.opt.rtp:prepend(lazypath)
 --vim.g.mapleader = " " -- make sure to set `mapleader` before lazy so your mappings are correct
 --<Leader> 키를 지정하는 것 같다.
 
-local function lsp_on_attach_keysetup(_ , bufnr)
+local function lsp_on_attach_keysetup(_, bufnr)
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   local bufopts = { noremap = true, silent = true, buffer = bufnr }
   vim.keymap.set('n', 'K', ':lua vim.lsp.buf.hover()<CR>', bufopts)
@@ -217,7 +211,7 @@ function Config_mason()
         filetypes = { "haskell", "lhaskell" },
         codeLens = { enabale = true },
         on_attach = lsp_on_attach,
---        capabilities = lsp_capabilities,
+        --        capabilities = lsp_capabilities,
         settings = {
           haskell = {
             hlintOn = true,
@@ -227,8 +221,8 @@ function Config_mason()
       })
     end,
 
-    ["sumneko_lua"] = function() 
-      -- sumneko_lua가 deprecated 인데,mason은 아직 반영 전이다. 
+    ["lua_ls"] = function()
+      -- sumneko_lua가 deprecated 인데,mason은 아직 반영 전이다.
       -- 그래서 키는 그대로 sumneko_lua로 두고 setup은 lua_ls로 했다.
       require 'lspconfig'.lua_ls.setup({
         on_attach = lsp_on_attach,
@@ -253,29 +247,115 @@ function Config_mason()
   }
 end
 
--- local lsp_signature_cfg = {
---   floating_window_off_x = 5, -- adjust float windows x position.
---   floating_window_off_y = function() -- adjust float windows y position.
---   e.g. set to -2 can make floating window move up 2 lines
---     local linenr = vim.api.nvim_win_get_cursor(0)[1] -- buf line number
---     local pumheight = vim.o.pumheight
---     local winline = vim.fn.winline() -- line number in the window
---     local winheight = vim.fn.winheight(0)
---
---     -- window top
---     if winline - 1 < pumheight then
---       return pumheight
---     end
---
---     -- window bottom
---     if winheight - winline < pumheight then
---       return -pumheight
---     end
---     return 0
---   end,
--- }
+local outline_opts = {
+  highlight_hovered_item = true,
+  show_guides = true,
+  auto_preview = false,
+  position = 'right',
+  relative_width = true,
+  width = 25,
+  auto_close = false,
+  show_numbers = false,
+  show_relative_numbers = false,
+  show_symbol_details = true,
+  preview_bg_highlight = 'Pmenu',
+  autofold_depth = 0,
+  auto_unfold_hover = true,
+  fold_markers = { '', '' },
+  wrap = false,
+  keymaps = { -- These keymaps can be a string or a table for multiple keys
+    --close = { "<Esc>", "q" }, -- 자꾸 ESC를 눌러서 닫아 버린다.
+    close = { "q" }, -- 이래도 ESC로 닫힌다.
+    goto_location = "<Cr>",
+    focus_location = "o",
+    hover_symbol = "<C-k>",
+    toggle_preview = "K",
+    rename_symbol = "r",
+    code_actions = "a",
+    fold = "h",
+    unfold = "l",
+    fold_all = "W",
+    unfold_all = "E",
+    fold_reset = "R",
+  },
+  lsp_blacklist = {},
+  symbol_blacklist = {},
+  symbols = {
+    File = { icon = "", hl = "TSURI" },
+    Module = { icon = "", hl = "TSNamespace" },
+    Namespace = { icon = "", hl = "TSNamespace" },
+    Package = { icon = "", hl = "TSNamespace" },
+    Class = { icon = "𝓒", hl = "TSType" },
+    Method = { icon = "ƒ", hl = "TSMethod" },
+    Property = { icon = "", hl = "TSMethod" },
+    Field = { icon = "", hl = "TSField" },
+    Constructor = { icon = "", hl = "TSConstructor" },
+    Enum = { icon = "ℰ", hl = "TSType" },
+    Interface = { icon = "ﰮ", hl = "TSType" },
+    Function = { icon = "", hl = "TSFunction" },
+    Variable = { icon = "", hl = "TSConstant" },
+    Constant = { icon = "", hl = "TSConstant" },
+    String = { icon = "𝓐", hl = "TSString" },
+    Number = { icon = "#", hl = "TSNumber" },
+    Boolean = { icon = "⊨", hl = "TSBoolean" },
+    Array = { icon = "", hl = "TSConstant" },
+    Object = { icon = "⦿", hl = "TSType" },
+    Key = { icon = "🔐", hl = "TSType" },
+    Null = { icon = "NULL", hl = "TSType" },
+    EnumMember = { icon = "", hl = "TSField" },
+    Struct = { icon = "𝓢", hl = "TSType" },
+    Event = { icon = "🗲", hl = "TSType" },
+    Operator = { icon = "+", hl = "TSOperator" },
+    TypeParameter = { icon = "𝙏", hl = "TSParameter" }
+  }
+}
 
-require("lazy").setup({
+
+vim.keymap.set({ 'n', 'i', 'v' }, '<F2>', ':cd %:h<CR>', { desc = 'Change Current Directory' })
+-- 아래처럼 메뉴를 지정해도 된다.
+--vim.keymap.set('n', '<Space>o',
+--  function() require 'key-menu'.open_window('<leader>o') end, {desc='Orgmode'})
+
+-- 어느 플러그인에선가 바꾸고 있는 것 같다. 첫부분에 써주면 작동 안하는데,
+-- 마지막에 써주면 작동한다.
+set.guicursor = 'n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175'
+-- 이게 디폴트 설정인데, mark 관련 플러그인이 가져가나 보다.
+-- <C-h>를 BS로 쓰려면 아래로 설정해야 한다.
+-- Coq이 로딩할때 가져 가는 것으로 보인다.
+vim.keymap.set({ 'i' }, '<C-h>', '<BS>', { silent = true, noremap = true })
+
+-- mini.indentscope
+
+
+set.completeopt = { 'menu', 'menuone', 'noselect' }
+
+-- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
+-- 찾기 모드에서도 자동 완성을 쓸 수 있다.
+-- lua LSP서버가 글로벌 vim 변수가 없는 것으로 인식한다.
+-- 이를 해결하기 위해 아래 globals를 추가
+
+
+vim.wo.foldmethod = "expr"
+vim.wo.foldexpr = "nvim_treesitter#foldexpr()"
+
+-- tree-sitter로 폴딩을 자동으로 만드는 것까진 좋은데, 디폴트로 모두 close 상태다.
+-- 이를 처음 파일을 열면 열어두기 위해 아래 방법을 쓴다.
+-- vim.api.nvim_create_autocmd(
+--   { "BufReadPost", "FileReadPost" },
+--   { pattern = "*",
+--     command = "normal zR|cd %:h" -- 폴더 열고, Current 디렉토리 바꾸고
+--   }
+-- )
+
+vim.api.nvim_create_autocmd(
+  { "BufReadPost", "FileReadPost" },
+  { pattern = "*",
+    command = "cd %:h | normal zR" -- 폴더 열고, Current 디렉토리 바꾸고
+  }
+)
+
+
+local plugins = {
   { 'sainnhe/everforest',
     lazy = false,
     config = function()
@@ -285,12 +365,12 @@ require("lazy").setup({
 
   --  { 'feline-nvim/feline.nvim', branch = '0.5-compat' },
   { 'nvim-lualine/lualine.nvim',
-    lazy = true,
+    lazy = false,
     config = function()
       require "lualine".setup {
         options = { theme = "everforest" },
         sections = {
-          lualine_c = { "filename", require "pomodoro".statusline },
+          lualine_c = { "filename", require "pomodoro".statusline, session_name },
         },
       }
     end
@@ -317,22 +397,6 @@ require("lazy").setup({
     end,
     dependencies = { { "nvim-tree/nvim-web-devicons" } }
   },
-  -- { "ray-x/lsp_signature.nvim",
-  --   config = function()
-  --     require "lsp_signature".setup(lsp_signature_cfg)
-  --   end,
-  --   keys = {
-  --     { '<C-k>',
-  --       function() require('lsp_signature').toggle_float_win() end,
-  --       { silent = true, noremap = true, desc = 'toggle signature' }
-  --     },
-  --     { '<Leader>k',
-  --       function() vim.lsp.buf.signature_help() end,
-  --       { silent = true, noremap = true, desc = 'toggle signature' }
-  --     }
-  --  }
-  -- },
-  --  { "folke/neoconf.nvim", cmd = "Neoconf" },
   { "folke/neodev.nvim",
     lazy = true,
   },
@@ -343,8 +407,9 @@ require("lazy").setup({
   },
   { 'preservim/vim-markdown',
     lazy = true,
+    dependencies = { 'godlygeek/tabular' },
   },
---  { 'EdenEast/nightfox.nvim', branch = 'main' },
+  --  { 'EdenEast/nightfox.nvim', branch = 'main' },
   { 'marko-cerovac/material.nvim',
     lazy = true,
   },
@@ -355,9 +420,10 @@ require("lazy").setup({
     lazy = true,
   },
   { 'iamcco/markdown-preview.nvim',
-    ['do'] = vim.fn['cd app && yarn install']
+    lazy = true, -- markdown 파일일 때 활성화가 안된다. 됐었는데, Lazy로 옮기고 안된다.
+    ft = { "markdown", "md" },
+    build = 'cd app && yarn install',
   },
-  --{ 'iamcco/markdown-preview.nvim' },
   { 'MattesGroeger/vim-bookmarks',
     lazy = true,
   },
@@ -365,8 +431,8 @@ require("lazy").setup({
     lazy = true,
   },
   { 'nvim-tree/nvim-web-devicons',
-    config = function ()
-      require'nvim-web-devicons'.setup{
+    config = function()
+      require 'nvim-web-devicons'.setup {
         default = true,
       }
     end,
@@ -378,6 +444,41 @@ require("lazy").setup({
   },
   { 'nvim-tree/nvim-tree.lua',
     lazy = true,
+    config = function()
+
+      require("nvim-tree").setup({
+        sort_by = "case_sensitive",
+        view = {
+          adaptive_size = true,
+          mappings = {
+            list = {
+              { key = "u", action = "dir_up" },
+            },
+          },
+        },
+        renderer = {
+          group_empty = true,
+          highlight_git = true,
+        },
+        filters = {
+          dotfiles = true,
+        },
+        update_focused_file = {
+          enable = true,
+          update_cwd = true,
+        },
+        sync_root_with_cwd = true,
+        respect_buf_cwd = true,
+      })
+    end,
+    keys = {
+      { '<C-n>',
+        ':NvimTreeFindFileToggle!<CR>',
+        {'n', 'v'},
+        silent = true,
+        desc = "Nvim-Tree"
+      },
+    },
   },
   { 'itchyny/lightline.vim',
     lazy = true,
@@ -394,18 +495,17 @@ require("lazy").setup({
   { 'nvim-lua/popup.nvim' },
   { 'numkil/ag.nvim',
     lazy = true,
+    cmd = 'Ag'
   },
   { 'duane9/nvim-rg',
     lazy = true,
     branch = 'main',
+    cmd = "Rg",
   },
   { 'nvim-telescope/telescope.nvim',
     lazy = true,
-    keys = {
+    keys = { -- 이렇게 keys 항목으로 하면 키바인딩도 lazy하게 먹는다.
       { '<space>f',
-        function()
-          return require('telescope.builtin').find_files()
-        end, desc = 'Find Files',
       },
       { '<space>g',
         function()
@@ -422,11 +522,6 @@ require("lazy").setup({
           return require('telescope').extensions.possession.list()
         end, desc = 'Session',
       },
-      -- { '<space>p',
-      --   function()
-      --     return require('telescope').extensions.projects.projects()
-      --   end, desc = 'Project',
-      -- },
       { '<space>m',
         function()
           return require('telescope').extensions.vim_bookmarks.all()
@@ -448,7 +543,6 @@ require("lazy").setup({
       require("telescope").load_extension("undo")
       vim.keymap.set("n", "<Space>u", "<cmd>Telescope undo<cr>", { desc = "Undo" })
       require("telescope").load_extension("possession")
-      --require("telescope").load_extension("projects")
       require("telescope").load_extension("file_browser")
       require("telescope").load_extension("vim_bookmarks")
       vim.keymap.set("n", "<Space>r", "<cmd>Telescope resume<cr>", { desc = "Resume" })
@@ -467,7 +561,7 @@ require("lazy").setup({
     lazy = true,
   },
   { 'nvim-treesitter/nvim-treesitter',
-    ['do'] = ':TSUpdate',
+    build = ':TSUpdate',
     dependencies = {
       'nvim-treesitter/nvim-treesitter-textobjects',
       { 'm-demare/hlargs.nvim',
@@ -476,6 +570,54 @@ require("lazy").setup({
         end,
       },
     },
+    config = function()
+      require 'nvim-treesitter.configs'.setup {
+        autotag = {
+          enable = true,
+        },
+        ensure_installed = { "haskell", "lua", "javascript", "typescript", "vim", "rust", "python", "graphql", "html",
+          "css",
+          "json" }, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+        ignore_install = { "" }, -- List of parsers to ignore installing
+        highlight = {
+          enable = true, -- false로 하면 모든 확장을 비활성화
+          disable = { "" }, -- TS를 비활성화할 언어 목록
+          additional_vim_regex_highlighting = { 'org' }, -- Required for spellcheck, some LaTex highlights and code block highlights that do not have ts grammar
+        },
+        indent = { enable = true },
+        textobjects = {
+          select = {
+            enable = true,
+            lookahead = true,
+            keymaps = {
+              -- 디폴트로 ip (inner paragraph), ap (a paragraph) 기능이 있다.
+              -- 아직은 제대로 동작하지 않을 때가 있는 것 같다.
+              -- lua 파일에서는 `function` 키워드를 찾아서 동작한다.
+              ["af"] = { query = "@function.outer", desc = "Select function outer" },
+              ["if"] = { query = "@function.inner", desc = "Select function inner" },
+              ["ac"] = { query = "@comment.outer", desc = "Select comment outer" },
+              ["ic"] = { query = "@class.inner", desc = "Select inner part of a class region" },
+            },
+            selection_modes = {
+              ['@comment.outer'] = 'v', -- charwise
+              ['@function.outer'] = 'V', -- linewise
+              ['@class.outer'] = '<c-v>', -- blockwise
+            },
+            include_surrounding_whitespace = true,
+          },
+          lsp_interop = {
+            enable = true,
+            border = 'none',
+            peek_definition_code = {
+              ["<leader>df"] = "@function.outer",
+              ["<leader>dF"] = "@class.outer",
+            },
+          },
+        },
+      }
+
+
+    end
   },
   { 'kdheepak/lazygit.nvim',
     branch = 'main',
@@ -483,12 +625,16 @@ require("lazy").setup({
   },
   { 'simrat39/symbols-outline.nvim',
     lazy = true,
+    config = function()
+      require("symbols-outline").setup(outline_opts)
+    end,
   },
   { 'numToStr/Comment.nvim',
     lazy = true,
     config = function()
       require('Comment').setup()
     end,
+    keys = {"gc","gb"}
   },
   { 'nvim-orgmode/orgmode',
     lazy = true,
@@ -533,6 +679,49 @@ require("lazy").setup({
   { 'echasnovski/mini.indentscope',
     version = '*',
     lazy = true,
+    config = function()
+      require('mini.indentscope').setup(
+      -- No need to copy this inside `setup()`. Will be used automatically.
+        {
+          draw = {
+            delay = 100,
+            -- Animation rule for scope's first drawing. A function which, given
+            -- next and total step numbers, returns wait time (in ms). See
+            -- |MiniIndentscope.gen_animation()| for builtin options. To disable
+            -- animation, use `require('mini.indentscope').gen_animation('none')`.
+            animation = function(_, _)
+              return 20
+            end,
+          },
+          -- Module mappings. Use `''` (empty string) to disable one.
+          -- 괄호 안의 오브젝트를 골라내는데 treesitter-unit을 쓰고 있다.
+          -- 아래는 treesitter의 오브젝트 하일라이트 기능을 찾으면 삭제할 것
+          mappings = {
+            -- Textobjects
+            object_scope = 'ii',
+            object_scope_with_border = 'ai',
+            -- Motions (jump to respective border line; if not present - body line)
+            goto_top = '[i',
+            goto_bottom = ']i',
+          },
+          -- Options which control scope computation
+          options = {
+            -- Type of scope's border: which line(s) with smaller indent to
+            -- categorize as border. Can be one of: 'both', 'top', 'bottom', 'none'.
+            border = 'both',
+            -- Whether to use cursor column when computing reference indent.
+            -- Useful to see incremental scopes with horizontal cursor movements.
+            indent_at_cursor = true,
+            -- Whether to first check input line to be a border of adjacent scope.
+            -- Use it if you want to place cursor on function header to get scope of
+            -- its body.
+            try_as_border = true,
+          },
+          -- Which character to use for drawing scope indicator
+          symbol = '╎',
+        }
+      )
+    end
   },
   { 'echasnovski/mini.surround',
     lazy = true,
@@ -544,8 +733,19 @@ require("lazy").setup({
   { 'jedrzejboczar/possession.nvim',
     lazy = true,
     config = function()
-      require "possession".setup {}
-    end
+      require "possession".setup {
+        silent = false,
+        load_silent = true,
+        autosave = {
+          current = true,
+          tmp = true,
+          tmp_name = 'tmp',
+          on_load = true,
+          on_quit = true,
+        }
+      }
+    end,
+    cmd = {"PossessionSave","PossessionLoad"}
   },
   { "hrsh7th/nvim-cmp",
     lazy = true,
@@ -624,7 +824,7 @@ require("lazy").setup({
         })
       })
       --  todo 아래를 빼내야 한다.
---      local lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
+      --      local lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
     end,
   },
   { 'dcampos/nvim-snippy',
@@ -637,14 +837,15 @@ require("lazy").setup({
     lazy = true,
   },
   { 'williamboman/mason.nvim',
-    lazy = true,
+    lazy = false, -- mason자체가 lazy로딩을 하므로, 다른 방법을 쓰지 말라 한다.
     config = function()
       return Config_mason()
-    end
-    --dependencies = {'mason-lspconfig'}
+    end,
+    dependencies = {'j-hui/fidget.nvim'}
   },
   { 'williamboman/mason-lspconfig.nvim',
     lazy = true,
+    dependencies = {'williamboman/mason.nvim'}
   },
   { 'ahmedkhalf/lsp-rooter.nvim',
     lazy = true,
@@ -759,16 +960,8 @@ require("lazy").setup({
     config = function()
       require "trouble".setup()
     end,
+    cmd = "Trouble",
   },
-  -- { -- 아래 textsubjects와 기능이 겹친다.
-  --   'David-Kunz/treesitter-unit',
-  --   config = function()
-  --     vim.api.nvim_set_keymap('x', 'iu', ':lua require"treesitter-unit".select()<CR>', { noremap = true })
-  --     vim.api.nvim_set_keymap('x', 'au', ':lua require"treesitter-unit".select(true)<CR>', { noremap = true })
-  --     vim.api.nvim_set_keymap('o', 'iu', ':<c-u>lua require"treesitter-unit".select()<CR>', { noremap = true })
-  --     vim.api.nvim_set_keymap('o', 'au', ':<c-u>lua require"treesitter-unit".select(true)<CR>', { noremap = true })
-  --   end,
-  -- },
   {
     'RRethy/nvim-treesitter-textsubjects',
     config = function()
@@ -794,7 +987,6 @@ require("lazy").setup({
   },
   {
     'kevinhwang91/nvim-hlslens',
-    lazy = true,
     config = function()
       require('hlslens').setup()
     end,
@@ -901,261 +1093,20 @@ require("lazy").setup({
     'rcarriga/nvim-dap-ui',
     lazy = true,
     dependencies = { 'mfussenegger/nvim-dap' },
-    config = function ()
+    config = function()
       require("dapui").setup()
     end,
   },
   {
     'TimUntersberger/neogit',
-    config = function ()
+    config = function()
       require "neogit".setup {}
     end,
-    lazy = false,
+    lazy = true,
     dependencies = { 'nvim-lua/plenary.nvim' },
-  },
-})
-
---[[
--- Runghc, StackBuild, GHCI는 미리 Terminal이 열려있어야 한다.
--- 아직, 빌드 환경 설정을 찾지 못해 임시로 만들었다.
-function Runghc()
-  local w = vim.fn.win_getid()
-  vim.cmd.write()
-  vim.cmd(':T runghc %')
-  vim.fn.win_gotoid(w)
-end
-
-function StackBuild()
-  local w = vim.fn.win_getid()
-  vim.cmd.write()
-  vim.cmd(':T stack run')
-  vim.fn.win_gotoid(w)
-end
-
-function GHCI()
-  vim.cmd(':TREPLSendFile')
-end
-
-vim.keymap.set({ 'n', 'v', 'i' }, '<F5>', function() return Runghc() end, { desc = 'ghc' })
-vim.keymap.set({ 'n', 'v', 'i' }, '<F6>', function() return StackBuild() end, { desc = 'stack build' })
-vim.keymap.set({ 'n', 'v', 'i' }, '<F7>', function() return GHCI() end, { desc = 'ghci' })
- ]]
-require 'nvim-treesitter.configs'.setup {
-  autotag = {
-    enable = true,
-  },
-  ensure_installed = { "haskell", "lua", "javascript", "typescript", "vim", "rust", "python", "graphql", "html", "css",
-    "json" }, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
-  ignore_install = { "" }, -- List of parsers to ignore installing
-  highlight = {
-    enable = true, -- false로 하면 모든 확장을 비활성화
-    disable = { "" }, -- TS를 비활성화할 언어 목록
-    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-    -- Using this option may slow down your editor, and you may see some duplicate highlights.
-    -- Instead of true it can also be a list of languages
-    additional_vim_regex_highlighting = { 'org' }, -- Required for spellcheck, some LaTex highlights and code block highlights that do not have ts grammar
-  },
-  indent = { enable = true },
-  textobjects = {
-    select = {
-      enable = true,
-      lookahead = true,
-      keymaps = {
-        -- 디폴트로 ip (inner paragraph), ap (a paragraph) 기능이 있다.
-        -- 아직은 제대로 동작하지 않을 때가 있는 것 같다.
-        -- lua 파일에서는 `function` 키워드를 찾아서 동작한다.
-        ["af"] = { query = "@function.outer", desc = "Select function outer" },
-        ["if"] = { query = "@function.inner", desc = "Select function inner" },
-        ["ac"] = { query = "@comment.outer", desc = "Select comment outer" },
-        ["ic"] = { query = "@class.inner", desc = "Select inner part of a class region" },
-      },
-      selection_modes = {
-        ['@comment.outer'] = 'v', -- charwise
-        ['@function.outer'] = 'V', -- linewise
-        ['@class.outer'] = '<c-v>', -- blockwise
-      },
-      include_surrounding_whitespace = true,
-    },
-    lsp_interop = {
-      enable = true,
-      border = 'none',
-      peek_definition_code = {
-        ["<leader>df"] = "@function.outer",
-        ["<leader>dF"] = "@class.outer",
-      },
-    },
+    cmd = "Neogit"
   },
 }
-
-
-local outline_opts = {
-  highlight_hovered_item = true,
-  show_guides = true,
-  auto_preview = false,
-  position = 'right',
-  relative_width = true,
-  width = 25,
-  auto_close = false,
-  show_numbers = false,
-  show_relative_numbers = false,
-  show_symbol_details = true,
-  preview_bg_highlight = 'Pmenu',
-  autofold_depth = 0,
-  auto_unfold_hover = true,
-  fold_markers = { '', '' },
-  wrap = false,
-  keymaps = { -- These keymaps can be a string or a table for multiple keys
-    --close = { "<Esc>", "q" }, -- 자꾸 ESC를 눌러서 닫아 버린다.
-    close = { "q" }, -- 이래도 ESC로 닫힌다.
-    goto_location = "<Cr>",
-    focus_location = "o",
-    hover_symbol = "<C-k>",
-    toggle_preview = "K",
-    rename_symbol = "r",
-    code_actions = "a",
-    fold = "h",
-    unfold = "l",
-    fold_all = "W",
-    unfold_all = "E",
-    fold_reset = "R",
-  },
-  lsp_blacklist = {},
-  symbol_blacklist = {},
-  symbols = {
-    File = { icon = "", hl = "TSURI" },
-    Module = { icon = "", hl = "TSNamespace" },
-    Namespace = { icon = "", hl = "TSNamespace" },
-    Package = { icon = "", hl = "TSNamespace" },
-    Class = { icon = "𝓒", hl = "TSType" },
-    Method = { icon = "ƒ", hl = "TSMethod" },
-    Property = { icon = "", hl = "TSMethod" },
-    Field = { icon = "", hl = "TSField" },
-    Constructor = { icon = "", hl = "TSConstructor" },
-    Enum = { icon = "ℰ", hl = "TSType" },
-    Interface = { icon = "ﰮ", hl = "TSType" },
-    Function = { icon = "", hl = "TSFunction" },
-    Variable = { icon = "", hl = "TSConstant" },
-    Constant = { icon = "", hl = "TSConstant" },
-    String = { icon = "𝓐", hl = "TSString" },
-    Number = { icon = "#", hl = "TSNumber" },
-    Boolean = { icon = "⊨", hl = "TSBoolean" },
-    Array = { icon = "", hl = "TSConstant" },
-    Object = { icon = "⦿", hl = "TSType" },
-    Key = { icon = "🔐", hl = "TSType" },
-    Null = { icon = "NULL", hl = "TSType" },
-    EnumMember = { icon = "", hl = "TSField" },
-    Struct = { icon = "𝓢", hl = "TSType" },
-    Event = { icon = "🗲", hl = "TSType" },
-    Operator = { icon = "+", hl = "TSOperator" },
-    TypeParameter = { icon = "𝙏", hl = "TSParameter" }
-  }
-}
-
-require("symbols-outline").setup(outline_opts)
-require("nvim-tree").setup({
-  sort_by = "case_sensitive",
-  view = {
-    adaptive_size = true,
-    mappings = {
-      list = {
-        { key = "u", action = "dir_up" },
-      },
-    },
-  },
-  renderer = {
-    group_empty = true,
-    highlight_git = true,
-  },
-  filters = {
-    dotfiles = true,
-  },
-  update_focused_file = {
-    enable = true,
-    update_cwd = true,
-  },
-  sync_root_with_cwd = true,
-  respect_buf_cwd = true,
-})
-
-vim.keymap.set({ 'n', 'v' }, '<C-n>', ':NvimTreeFindFileToggle!<CR>', { silent = true })
---vim.keymap.set({'n','v'}, '<C-n>', ':CHADopen --always-focus<CR>',{silent=true})
-
-vim.keymap.set({ 'n', 'i', 'v' }, '<F2>', ':cd %:h<CR>', { desc = 'Change Current Directory' })
--- 아래처럼 메뉴를 지정해도 된다.
---vim.keymap.set('n', '<Space>o',
---  function() require 'key-menu'.open_window('<leader>o') end, {desc='Orgmode'})
-
--- 어느 플러그인에선가 바꾸고 있는 것 같다. 첫부분에 써주면 작동 안하는데,
--- 마지막에 써주면 작동한다.
-set.guicursor = 'n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175'
--- 이게 디폴트 설정인데, mark 관련 플러그인이 가져가나 보다.
--- <C-h>를 BS로 쓰려면 아래로 설정해야 한다.
--- Coq이 로딩할때 가져 가는 것으로 보인다.
-vim.keymap.set({ 'i' }, '<C-h>', '<BS>', { silent = true, noremap = true })
-
--- mini.indentscope
-require('mini.indentscope').setup(
--- No need to copy this inside `setup()`. Will be used automatically.
-  {
-    draw = {
-      delay = 100,
-      -- Animation rule for scope's first drawing. A function which, given
-      -- next and total step numbers, returns wait time (in ms). See
-      -- |MiniIndentscope.gen_animation()| for builtin options. To disable
-      -- animation, use `require('mini.indentscope').gen_animation('none')`.
-      animation = function(_ , _)
-        return 20
-      end,
-    },
-    -- Module mappings. Use `''` (empty string) to disable one.
-    -- 괄호 안의 오브젝트를 골라내는데 treesitter-unit을 쓰고 있다.
-    -- 아래는 treesitter의 오브젝트 하일라이트 기능을 찾으면 삭제할 것
-    mappings = {
-      -- Textobjects
-      object_scope = 'ii',
-      object_scope_with_border = 'ai',
-      -- Motions (jump to respective border line; if not present - body line)
-      goto_top = '[i',
-      goto_bottom = ']i',
-    },
-    -- Options which control scope computation
-    options = {
-      -- Type of scope's border: which line(s) with smaller indent to
-      -- categorize as border. Can be one of: 'both', 'top', 'bottom', 'none'.
-      border = 'both',
-      -- Whether to use cursor column when computing reference indent.
-      -- Useful to see incremental scopes with horizontal cursor movements.
-      indent_at_cursor = true,
-      -- Whether to first check input line to be a border of adjacent scope.
-      -- Use it if you want to place cursor on function header to get scope of
-      -- its body.
-      try_as_border = true,
-    },
-    -- Which character to use for drawing scope indicator
-    symbol = '╎',
-  }
-)
-
-set.completeopt = { 'menu', 'menuone', 'noselect' }
-
--- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
--- 찾기 모드에서도 자동 완성을 쓸 수 있다.
--- lua LSP서버가 글로벌 vim 변수가 없는 것으로 인식한다.
--- 이를 해결하기 위해 아래 globals를 추가
-
-
-vim.wo.foldmethod = "expr"
-vim.wo.foldexpr = "nvim_treesitter#foldexpr()"
-
--- tree-sitter로 폴딩을 자동으로 만드는 것까진 좋은데, 디폴트로 모두 close 상태다.
--- 이를 처음 파일을 열면 열어두기 위해 아래 방법을 쓴다.
-vim.api.nvim_create_autocmd(
-  { "BufReadPost", "FileReadPost" },
-  { pattern = "*",
-    command = "normal zR"
-  }
-)
 
 --require("scrollbar").setup{} -- 오른쪽 끝의 텍스트를 가리는 경우가 있다.
 --require('feline').setup {}
@@ -1165,3 +1116,4 @@ vim.api.nvim_create_autocmd(
 -- Neovim의 디폴트 omnifunc는 기본으로 자동완성 제안을 보여준다.
 -- nvim-cmp는 더 많은 타입의 자동완성 제안을 지원한다.
 --
+require("lazy").setup(plugins)

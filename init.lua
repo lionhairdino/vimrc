@@ -240,6 +240,9 @@ function Config_mason()
             telemetry = {
               enable = false,
             },
+            completion = {
+              callSnippet = "Replace"
+            },
           },
         },
       })
@@ -247,68 +250,68 @@ function Config_mason()
   }
 end
 
-local outline_opts = {
-  highlight_hovered_item = true,
-  show_guides = true,
-  auto_preview = false,
-  position = 'right',
-  relative_width = true,
-  width = 25,
-  auto_close = false,
-  show_numbers = false,
-  show_relative_numbers = false,
-  show_symbol_details = true,
-  preview_bg_highlight = 'Pmenu',
-  autofold_depth = 0,
-  auto_unfold_hover = true,
-  fold_markers = { '', '' },
-  wrap = false,
-  keymaps = { -- These keymaps can be a string or a table for multiple keys
-    --close = { "<Esc>", "q" }, -- 자꾸 ESC를 눌러서 닫아 버린다.
-    close = { "q" }, -- 이래도 ESC로 닫힌다.
-    goto_location = "<Cr>",
-    focus_location = "o",
-    hover_symbol = "<C-k>",
-    toggle_preview = "K",
-    rename_symbol = "r",
-    code_actions = "a",
-    fold = "h",
-    unfold = "l",
-    fold_all = "W",
-    unfold_all = "E",
-    fold_reset = "R",
-  },
-  lsp_blacklist = {},
-  symbol_blacklist = {},
-  symbols = {
-    File = { icon = "", hl = "TSURI" },
-    Module = { icon = "", hl = "TSNamespace" },
-    Namespace = { icon = "", hl = "TSNamespace" },
-    Package = { icon = "", hl = "TSNamespace" },
-    Class = { icon = "𝓒", hl = "TSType" },
-    Method = { icon = "ƒ", hl = "TSMethod" },
-    Property = { icon = "", hl = "TSMethod" },
-    Field = { icon = "", hl = "TSField" },
-    Constructor = { icon = "", hl = "TSConstructor" },
-    Enum = { icon = "ℰ", hl = "TSType" },
-    Interface = { icon = "ﰮ", hl = "TSType" },
-    Function = { icon = "", hl = "TSFunction" },
-    Variable = { icon = "", hl = "TSConstant" },
-    Constant = { icon = "", hl = "TSConstant" },
-    String = { icon = "𝓐", hl = "TSString" },
-    Number = { icon = "#", hl = "TSNumber" },
-    Boolean = { icon = "⊨", hl = "TSBoolean" },
-    Array = { icon = "", hl = "TSConstant" },
-    Object = { icon = "⦿", hl = "TSType" },
-    Key = { icon = "🔐", hl = "TSType" },
-    Null = { icon = "NULL", hl = "TSType" },
-    EnumMember = { icon = "", hl = "TSField" },
-    Struct = { icon = "𝓢", hl = "TSType" },
-    Event = { icon = "🗲", hl = "TSType" },
-    Operator = { icon = "+", hl = "TSOperator" },
-    TypeParameter = { icon = "𝙏", hl = "TSParameter" }
-  }
-}
+-- local outline_opts = {
+--   highlight_hovered_item = true,
+--   show_guides = true,
+--   auto_preview = false,
+--   position = 'right',
+--   relative_width = true,
+--   width = 25,
+--   auto_close = false,
+--   show_numbers = false,
+--   show_relative_numbers = false,
+--   show_symbol_details = true,
+--   preview_bg_highlight = 'Pmenu',
+--   autofold_depth = 0,
+--   auto_unfold_hover = true,
+--   fold_markers = { '', '' },
+--   wrap = false,
+--   keymaps = { -- These keymaps can be a string or a table for multiple keys
+--     --close = { "<Esc>", "q" }, -- 자꾸 ESC를 눌러서 닫아 버린다.
+--     close = { "q" }, -- 이래도 ESC로 닫힌다.
+--     goto_location = "<Cr>",
+--     focus_location = "o",
+--     hover_symbol = "<C-k>",
+--     toggle_preview = "K",
+--     rename_symbol = "r",
+--     code_actions = "a",
+--     fold = "h",
+--     unfold = "l",
+--     fold_all = "W",
+--     unfold_all = "E",
+--     fold_reset = "R",
+--   },
+--   lsp_blacklist = {},
+--   symbol_blacklist = {},
+--   symbols = {
+--     File = { icon = "", hl = "TSURI" },
+--     Module = { icon = "", hl = "TSNamespace" },
+--     Namespace = { icon = "", hl = "TSNamespace" },
+--     Package = { icon = "", hl = "TSNamespace" },
+--     Class = { icon = "𝓒", hl = "TSType" },
+--     Method = { icon = "ƒ", hl = "TSMethod" },
+--     Property = { icon = "", hl = "TSMethod" },
+--     Field = { icon = "", hl = "TSField" },
+--     Constructor = { icon = "", hl = "TSConstructor" },
+--     Enum = { icon = "ℰ", hl = "TSType" },
+--     Interface = { icon = "ﰮ", hl = "TSType" },
+--     Function = { icon = "", hl = "TSFunction" },
+--     Variable = { icon = "", hl = "TSConstant" },
+--     Constant = { icon = "", hl = "TSConstant" },
+--     String = { icon = "𝓐", hl = "TSString" },
+--     Number = { icon = "#", hl = "TSNumber" },
+--     Boolean = { icon = "⊨", hl = "TSBoolean" },
+--     Array = { icon = "", hl = "TSConstant" },
+--     Object = { icon = "⦿", hl = "TSType" },
+--     Key = { icon = "🔐", hl = "TSType" },
+--     Null = { icon = "NULL", hl = "TSType" },
+--     EnumMember = { icon = "", hl = "TSField" },
+--     Struct = { icon = "𝓢", hl = "TSType" },
+--     Event = { icon = "🗲", hl = "TSType" },
+--     Operator = { icon = "+", hl = "TSOperator" },
+--     TypeParameter = { icon = "𝙏", hl = "TSParameter" }
+--   }
+-- }
 
 
 vim.keymap.set({ 'n', 'i', 'v' }, '<F2>', ':cd %:h<CR>', { desc = 'Change Current Directory' })
@@ -370,13 +373,14 @@ local plugins = {
       require "lualine".setup {
         options = { theme = "everforest" },
         sections = {
-          lualine_c = { "filename", require "pomodoro".statusline, session_name },
+          lualine_c = { "filename", require "pomodoro".statusline },
         },
       }
     end
   },
   { 'junegunn/fzf',
     lazy = true,
+    cmd = "FZF",
   },
   { 'neovim/nvim-lspconfig',
     lazy = true,
@@ -399,6 +403,7 @@ local plugins = {
   },
   { "folke/neodev.nvim",
     lazy = true,
+    dependencies = { "hrsh7th/nvim-cmp" }
   },
   -- 특정 기호등을 기준으로 정렬할 때 쓴다.
   -- :Tabularize /= (이렇게 하면 =을 기준으로 정렬된다.)
@@ -406,17 +411,20 @@ local plugins = {
     lazy = true,
   },
   { 'preservim/vim-markdown',
+    ft = { "md", "markdown" },
     lazy = true,
     dependencies = { 'godlygeek/tabular' },
   },
   --  { 'EdenEast/nightfox.nvim', branch = 'main' },
   { 'marko-cerovac/material.nvim',
-    lazy = true,
+    lazy = false,
   },
   { 'purescript-contrib/purescript-vim', branch = 'main',
     lazy = true,
+    ft = "purs",
   },
   { 'vmchale/dhall-vim',
+    ft = "dhall",
     lazy = true,
   },
   { 'iamcco/markdown-preview.nvim',
@@ -428,6 +436,7 @@ local plugins = {
     lazy = true,
   },
   { 'kassio/neoterm',
+    cmd = 'Tnew',
     lazy = true,
   },
   { 'nvim-tree/nvim-web-devicons',
@@ -474,22 +483,11 @@ local plugins = {
     keys = {
       { '<C-n>',
         ':NvimTreeFindFileToggle!<CR>',
-        {'n', 'v'},
+        { 'n', 'v' },
         silent = true,
         desc = "Nvim-Tree"
       },
     },
-  },
-  { 'itchyny/lightline.vim',
-    lazy = true,
-  },
-  --  { 'antoinemadec/FixCursorHold.nvim' },
-  { 'tpope/vim-fugitive',
-    lazy = true,
-  },
-  { 'idanarye/vim-merginal',
-    branch = 'develop',
-    lazy = true,
   },
   { 'nvim-lua/plenary.nvim' },
   { 'nvim-lua/popup.nvim' },
@@ -502,11 +500,75 @@ local plugins = {
     branch = 'main',
     cmd = "Rg",
   },
+  { 'nvim-telescope/telescope-file-browser.nvim',
+    lazy = true,
+    keys = {
+      { '<space>f',
+        function()
+          return require('telescope').extensions.file_browser.file_browser()
+        end, desc = 'File Browser',
+      },
+    },
+    config = function()
+      require("telescope").load_extension("file_browser")
+      require("telescope").setup({
+        extensions = {
+          file_browser = {
+            theme = "ivy",
+          },
+        },
+      })
+    end,
+    dependencies = {
+      'nvim-telescope/telescope.nvim',
+    },
+  },
+
+  { 'tom-anders/telescope-vim-bookmarks.nvim',
+    lazy = true,
+    keys = {
+      { '<space>m',
+        function()
+          return require('telescope').extensions.vim_bookmarks.all()
+        end, desc = 'Bookmarks',
+      },
+    },
+    config = function()
+      require("telescope").load_extension("vim_bookmarks")
+    end,
+    dependencies = {
+      'MattesGroeger/vim-bookmarks',
+      'nvim-telescope/telescope.nvim',
+    },
+  },
+
+  { "debugloop/telescope-undo.nvim",
+    lazy = true,
+    keys = {
+      { '<space>u', "<cmd>Telescope undo<cr>", desc = "Undo" },
+    },
+
+    config = function()
+      require("telescope").load_extension("undo")
+      require("telescope").setup({
+        extensions = {
+          undo = {
+            side_by_side = true,
+            layout_config = {
+              preview_height = 0.8,
+            },
+          },
+        },
+      })
+    end,
+    dependencies = {
+      'nvim-telescope/telescope.nvim',
+    },
+  },
+
   { 'nvim-telescope/telescope.nvim',
     lazy = true,
     keys = { -- 이렇게 keys 항목으로 하면 키바인딩도 lazy하게 먹는다.
-      { '<space>f',
-      },
       { '<space>g',
         function()
           return require('telescope.builtin').live_grep { search_dirs = { '.' } }
@@ -517,48 +579,22 @@ local plugins = {
           return require('telescope.builtin').buffers()
         end, desc = 'Buffers',
       },
-      { '<space>s',
-        function()
-          return require('telescope').extensions.possession.list()
-        end, desc = 'Session',
-      },
-      { '<space>m',
-        function()
-          return require('telescope').extensions.vim_bookmarks.all()
-        end, desc = 'Bookmarks',
+      {
+        '<space>r', "<cmd>Telescope resume<cr>", desc = "Resume"
       },
     },
     config = function()
       require("telescope").setup({
-        extensions = {
-          undo = {
-            side_by_side = true,
-            --layout_strategy = "vertical",
-            layout_config = {
-              preview_height = 0.8,
-            },
-          },
-        },
       })
-      require("telescope").load_extension("undo")
-      vim.keymap.set("n", "<Space>u", "<cmd>Telescope undo<cr>", { desc = "Undo" })
-      require("telescope").load_extension("possession")
-      require("telescope").load_extension("file_browser")
-      require("telescope").load_extension("vim_bookmarks")
-      vim.keymap.set("n", "<Space>r", "<cmd>Telescope resume<cr>", { desc = "Resume" })
     end,
     dependencies = {
-      'nvim-telescope/telescope-file-browser.nvim',
-      'tom-anders/telescope-vim-bookmarks.nvim',
       "nvim-lua/plenary.nvim",
-      "debugloop/telescope-undo.nvim",
-      "nvim-telescope/telescope-media-files.nvim",
     },
   },
-  --  { 'tom-anders/telescope-vim-bookmarks.nvim' },
-  --  { 'nvim-telescope/telescope-file-browser.nvim' },
+
   { 'monkoose/fzf-hoogle.vim',
     lazy = true,
+    cmd = "Hoogle",
   },
   { 'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
@@ -619,24 +655,42 @@ local plugins = {
 
     end
   },
-  { 'kdheepak/lazygit.nvim',
-    branch = 'main',
-    lazy = true,
-  },
+  -- { 'kdheepak/lazygit.nvim',
+  --   branch = 'main',
+  --   lazy = true,
+  -- },
   { 'simrat39/symbols-outline.nvim',
     lazy = true,
-    config = function()
-      require("symbols-outline").setup(outline_opts)
+    cmd = "SymbolsOutline",
+    config = function ()
+      require "symbols-outline".setup({
+        keymaps = {
+          --close = { "<Esc>", "q" }, -- 자꾸 ESC를 눌러서 닫아 버린다.
+          close = { "q" },
+          goto_location = "<Cr>",
+          focus_location = "o",
+          hover_symbol = "<C-k>",
+          toggle_preview = "K",
+          rename_symbol = "r",
+          code_actions = "a",
+          fold = "h",
+          unfold = "l",
+          fold_all = "W",
+          unfold_all = "E",
+          fold_reset = "R",
+        },
+      })
     end,
   },
   { 'numToStr/Comment.nvim',
     lazy = true,
+    keys = { {"gc",nil,{"n","v"}}, {"gb",nil,{"n","v"}} },
     config = function()
       require('Comment').setup()
     end,
-    keys = {"gc","gb"}
   },
   { 'nvim-orgmode/orgmode',
+    keys = {{ "<leader>oa", "<leader>oc" },},
     lazy = true,
     config = function()
       require('orgmode').setup_ts_grammar()
@@ -647,10 +701,11 @@ local plugins = {
         org_default_notes_file = '~/notes/refile.org',
       })
     end,
+    dependencies = { 'nvim-treesitter/nvim-treesitter' }
   },
   { 'linty-org/key-menu.nvim',
-    lazy = true,
-    init = function()
+    lazy = false,
+    config = function()
       -- 팝업 keymap
       -- 보통 아는 명령어면 연달아서 입력한다.
       -- 600밀리초 지나도 다음 키가 안들어 오면 메뉴를 띄운다.
@@ -669,8 +724,10 @@ local plugins = {
   }, --팝업 메뉴
   { 'kevinhwang91/nvim-bqf',
     lazy = true,
+    ft = 'qf',
   },
   { 'caenrique/nvim-maximize-window-toggle',
+    keys = {{ '<Leader>z', "<Cmd>lua require('maximize').toggle()<CR>", desc = "Maximize" },},
     lazy = true,
   },
   { 'echasnovski/mini.nvim',
@@ -678,7 +735,7 @@ local plugins = {
   },
   { 'echasnovski/mini.indentscope',
     version = '*',
-    lazy = true,
+    lazy = false,
     config = function()
       require('mini.indentscope').setup(
       -- No need to copy this inside `setup()`. Will be used automatically.
@@ -725,6 +782,7 @@ local plugins = {
   },
   { 'echasnovski/mini.surround',
     lazy = true,
+    keys = { {'sa'}, {'sd'}, {'sf'}, {'sF'}, {'sh'}, {'sr'}, {'sn'} },
     version = '*',
     config = function()
       require('mini.surround').setup {}
@@ -732,7 +790,15 @@ local plugins = {
   },
   { 'jedrzejboczar/possession.nvim',
     lazy = true,
+    keys = {
+      { '<space>s',
+        function()
+          return require('telescope').extensions.possession.list()
+        end, desc = 'Session',
+      },
+    },
     config = function()
+      require("telescope").load_extension("possession")
       require "possession".setup {
         silent = false,
         load_silent = true,
@@ -745,7 +811,10 @@ local plugins = {
         }
       }
     end,
-    cmd = {"PossessionSave","PossessionLoad"}
+    cmd = { "PossessionSave", "PossessionLoad" },
+    dependencies = {
+      'nvim-telescope/telescope.nvim',
+    },
   },
   { "hrsh7th/nvim-cmp",
     lazy = true,
@@ -759,6 +828,7 @@ local plugins = {
       "hrsh7th/cmp-nvim-lsp-signature-help",
       "hrsh7th/cmp-nvim-lsp-document-symbol",
       "hrsh7th/cmp-nvim-lua",
+      "dcampos/nvim-snippy"
     },
     init = function()
       -- Set up nvim-cmp.
@@ -829,11 +899,11 @@ local plugins = {
   },
   { 'dcampos/nvim-snippy',
     lazy = true,
+    dependencies = {
+      'dcampos/cmp-snippy',
+    }
   },
   { 'dcampos/cmp-snippy',
-    lazy = true,
-  },
-  { 'kabouzeid/nvim-lspinstall',
     lazy = true,
   },
   { 'williamboman/mason.nvim',
@@ -841,14 +911,14 @@ local plugins = {
     config = function()
       return Config_mason()
     end,
-    dependencies = {'j-hui/fidget.nvim'}
+    dependencies = { 'j-hui/fidget.nvim' }
   },
   { 'williamboman/mason-lspconfig.nvim',
     lazy = true,
-    dependencies = {'williamboman/mason.nvim'}
+    dependencies = { 'williamboman/mason.nvim' }
   },
   { 'ahmedkhalf/lsp-rooter.nvim',
-    lazy = true,
+    lazy = false, -- LSP가 불릴 때 이벤트가 아직 뭔지 모르겠다.
     config = function()
       require "lsp-rooter".setup {}
     end,
@@ -857,9 +927,11 @@ local plugins = {
   { 'mattn/webapi-vim' },
   { 'sindrets/diffview.nvim',
     lazy = true,
+    cmd = "DiffviewOpen",
     config = function()
       require("diffview").setup {}
     end,
+    dependencies = { 'nvim-lua/plenary.nvim' }
   },
   --  { 'petertriho/nvim-scrollbar' },
   --  오른쪽 스크롤러가 내용을 가리는 경우가 있다.
@@ -883,6 +955,7 @@ local plugins = {
   },
   { "jackMort/ChatGPT.nvim",
     lazy = true,
+    cmd = "ChatGPT",
     config = function()
       require "chatgpt".setup()
     end,
@@ -946,21 +1019,22 @@ local plugins = {
       require "mini.starter".setup {}
     end,
   },
-  {
-    'rcarriga/nvim-notify',
-    lazy = true,
-    config = function()
-      require "notify".setup {}
-      require('telescope').load_extension("notify")
-    end,
-  },
+  -- {
+  --   'rcarriga/nvim-notify',
+  --   lazy = true,
+  --   config = function()
+  --     require "notify".setup {}
+  --     require('telescope').load_extension("notify")
+  --   end,
+  --   dependencies = { "plenary.async", "nvim-telescope/telescope.nvim" }
+  -- },
   {
     'folke/trouble.nvim',
     lazy = true,
+    cmd = "Trouble",
     config = function()
       require "trouble".setup()
     end,
-    cmd = "Trouble",
   },
   {
     'RRethy/nvim-treesitter-textsubjects',
@@ -981,6 +1055,7 @@ local plugins = {
   {
     'norcalli/nvim-colorizer.lua',
     lazy = true,
+    cmd = "ColorizerToggle",
     config = function()
       require 'colorizer'.setup()
     end,
@@ -1006,29 +1081,16 @@ local plugins = {
   {
     'mfussenegger/nvim-dap',
     lazy = true,
+    keys = {
+      { '<F8>', [[:lua require"dapui".toggle()<CR>]], noremap = true },
+      { '<F9>', [[:lua require"dap".toggle_breakpoint()<CR>]], noremap = true },
+      { '<F5>', [[:lua require"dap".continue()<CR>]], noremap = true },
+      { '<F10>', [[:lua require"dap".step_over()<CR>]], noremap = true },
+      { '<F11>', [[:lua require"dap".step_into()<CR>]], noremap = true },
+      { '<F12>', [[:lua require"dap.ui.widgets".hover()<CR>]], noremap = true },
+      { '<F4>', [[:lua require"dap".repl.open()<CR>]], noremap = true }
+    },
     config = function()
-      vim.api.nvim_set_keymap(
-        'n', '<F8>', [[:lua require"dapui".toggle()<CR>]],
-        { noremap = true })
-      vim.api.nvim_set_keymap(
-        'n', '<F9>', [[:lua require"dap".toggle_breakpoint()<CR>]],
-        { noremap = true })
-      vim.api.nvim_set_keymap(
-        'n', '<F5>', [[:lua require"dap".continue()<CR>]],
-        { noremap = true })
-      vim.api.nvim_set_keymap(
-        'n', '<F10>', [[:lua require"dap".step_over()<CR>]],
-        { noremap = true })
-      vim.api.nvim_set_keymap(
-        'n', '<F11>', [[:lua require"dap".step_into()<CR>]],
-        { noremap = true })
-      vim.api.nvim_set_keymap(
-        'n', '<F12>', [[:lua require"dap.ui.widgets".hover()<CR>]],
-        { noremap = true })
-      vim.api.nvim_set_keymap(
-        'n', '<F4>', [[:lua require"dap".repl.open()<CR>]],
-        { noremap = true })
-
       local workspaceFolder = vim.fn.getcwd()
       local dap = require "dap"
 
@@ -1068,6 +1130,7 @@ local plugins = {
   {
     'jbyuki/one-small-step-for-vimkind',
     lazy = true,
+    keys = {{ '<F6>', ':lua require"osv".launch({port = 8086})<CR>', 'Nlua Debugger' },},
     dependencies = { 'mfussenegger/nvim-dap' },
     config = function()
       require "dap".configurations.lua = {
@@ -1084,9 +1147,6 @@ local plugins = {
           port = config.port or 8086
         })
       end
-      vim.api.nvim_set_keymap(
-        'n', '<S-F5>', [[:lua require"osv".launch({port = 8086})<CR>]],
-        { noremap = true })
     end
   },
   {
@@ -1109,8 +1169,6 @@ local plugins = {
 }
 
 --require("scrollbar").setup{} -- 오른쪽 끝의 텍스트를 가리는 경우가 있다.
---require('feline').setup {}
-
 -- LSP의 Capabilities란?
 -- LSP서버는 클라이언트 능력Capabilities에 따라 다른 자동완성completion 결과를 제공한다.
 -- Neovim의 디폴트 omnifunc는 기본으로 자동완성 제안을 보여준다.

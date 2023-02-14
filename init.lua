@@ -521,6 +521,7 @@ local plugins = {
     },
     config = function()
       require("telescope").setup({
+        defaults = require "telescope.themes".get_ivy({}),
       })
     end,
     dependencies = {
@@ -598,7 +599,7 @@ local plugins = {
   { 'simrat39/symbols-outline.nvim',
     lazy = true,
     cmd = "SymbolsOutline",
-    config = function ()
+    config = function()
       require "symbols-outline".setup({
         keymaps = {
           --close = { "<Esc>", "q" }, -- 자꾸 ESC를 눌러서 닫아 버린다.
@@ -620,13 +621,13 @@ local plugins = {
   },
   { 'numToStr/Comment.nvim',
     lazy = true,
-    keys = { {"gc",nil,{"n","v"}}, {"gb",nil,{"n","v"}} },
+    keys = { { "gc", nil, { "n", "v" } }, { "gb", nil, { "n", "v" } } },
     config = function()
       require('Comment').setup()
     end,
   },
   { 'nvim-orgmode/orgmode',
-    keys = {{ "<leader>oa", "<leader>oc" },},
+    keys = { { "<leader>oa", "<leader>oc" }, },
     lazy = true,
     config = function()
       require('orgmode').setup_ts_grammar()
@@ -714,7 +715,7 @@ local plugins = {
   },
   { 'echasnovski/mini.surround',
     lazy = true,
-    keys = { {'sa'}, {'sd'}, {'sf'}, {'sF'}, {'sh'}, {'sr'}, {'sn'} },
+    keys = { { 'sa' }, { 'sd' }, { 'sf' }, { 'sF' }, { 'sh' }, { 'sr' }, { 'sn' } },
     version = '*',
     config = function()
       require('mini.surround').setup {}
@@ -951,15 +952,6 @@ local plugins = {
       require "mini.starter".setup {}
     end,
   },
-  -- {
-  --   'rcarriga/nvim-notify',
-  --   lazy = true,
-  --   config = function()
-  --     require "notify".setup {}
-  --     require('telescope').load_extension("notify")
-  --   end,
-  --   dependencies = { "plenary.async", "nvim-telescope/telescope.nvim" }
-  -- },
   {
     'folke/trouble.nvim',
     lazy = true,
@@ -1062,7 +1054,7 @@ local plugins = {
   {
     'jbyuki/one-small-step-for-vimkind',
     lazy = true,
-    keys = {{ '<F6>', ':lua require"osv".launch({port = 8086})<CR>', 'Nlua Debugger' },},
+    keys = { { '<F6>', ':lua require"osv".launch({port = 8086})<CR>', 'Nlua Debugger' }, },
     dependencies = { 'mfussenegger/nvim-dap' },
     config = function()
       require "dap".configurations.lua = {

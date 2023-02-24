@@ -16,6 +16,7 @@
 --
 -- :Hoogle 후글 검색
 --
+
 local set = vim.opt
 set.mouse = 'a'
 set.number = true
@@ -38,12 +39,13 @@ set.clipboard = 'unnamedplus'
 set.undodir = vim.fn.stdpath('cache') .. '/undodir/'
 set.undofile = true
 
-set.printencoding = 'utf8'
-set.printmbcharset = 'ISO10646'
-set.printmbfont = 'r:D0CodingLigature,c:yes,a:yes'
-set.printfont = 'D2CodingLigature:h10'
+-- v0.9로 올리고 나서 아래 프린터 설정은 모두 없는 것으로 나온다.
+--set.printencoding = 'utf8'
+--set.printmbcharset = 'ISO10646'
+--set.printmbfont = 'r:D0CodingLigature,c:yes,a:yes'
+--#set.printfont = 'D2CodingLigature:h10'
 --set.printdevice = 'FUJI_XEROX_DocuPrint_CP225_228_w_'
-set.printdevice = 'HP-LaserJet-1200'
+--set.printdevice = 'HP-LaserJet-1200'
 --set.timeoutlen = 300
 set.termguicolors = true
 --set.updatetime = 1200 -- nvim_create_autocmd에서 사용
@@ -51,6 +53,10 @@ set.termguicolors = true
 -- 기본 탐색기 끄기
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
+
+-- 디폴트 filetype.vim을 안쓰기
+-- neovim 0.6이전만 아래를 추가하란다.
+-- vim.g.did_load_filetypes = 1
 
 vim.g['oceanic_next_terminal_bold'] = 1
 vim.g['oceanic_next_terminal_italic'] = 1
@@ -71,17 +77,6 @@ vim.g['mkdp_theme'] = 'light' -- markdown preview 플러그인 테마 설정
 vim.g['mkdp_filetypes'] = { "markdown" }
 --vim.cmd.colorscheme('OceanicNext')
 --vim.g.material_style = "oceanic-next"
--- 입력 모드일 때만 row를 표시하는 선line을 가린다.
-vim.api.nvim_create_autocmd(
-  { "InsertEnter" },
-  { pattern = "*",
-    command = "set nocul" }
-)
-vim.api.nvim_create_autocmd(
-  { "InsertLeave" },
-  { pattern = "*",
-    command = "set cul" }
-)
 -- 터미널에 포커스가 가면 자동으로 입력모드
 vim.api.nvim_create_autocmd(
   { "BufWinEnter", "WinEnter" },
@@ -98,11 +93,20 @@ vim.keymap.set({ 'n' }, 'j', 'gj', { silent = true })
 
 -- Shift-BS는 작동하지 않고 있다. 이유는 아직 모른다.
 -- GUI에서만 지정 가능한 키조합이라 한다.
-vim.keymap.set({ 'i' }, '<Shift-BS>', '<kDel>', { silent = true })
+--
+--vim.keymap.set({ 'i' }, '<c-h>', '<Left>', { silent = true })
+vim.keymap.set({ 'i' }, '<c-h>', '<bs>', { silent = true })
+--vim.keymap.set({ 'i' }, '<c-j>', '<Down>', { silent = true })
+vim.keymap.set({ 'i' }, '<c-k>', '<Up>', { silent = true })
+vim.keymap.set({ 'i' }, '<c-l>', '<Right>', { silent = true })
+vim.keymap.set({ 'i' }, '<c-j>', '<c-o>A<cr>', { silent = true })
+--vim.keymap.set({ 'i' }, '<Shift-BS>', '<kDel>', { silent = true })
 vim.keymap.set({ 'i', 'n', 'v' }, '<leader>\\', ':Tnew<CR>', { silent = true })
 
---vim.keymap.set('n', '<F3>', ':LazyGit<CR>', { desc = 'Git' })
 vim.keymap.set('n', '<F3>', ':Neogit kind=split<CR>', { desc = 'Git' })
+
+
+
 
 -- 윈도우 크기 조절
 vim.keymap.set('n', '=', ':resize +5<CR>', { desc = 'incresing height', silent = true })
@@ -151,14 +155,14 @@ local function lsp_on_attach(client, bufnr)
   lsp_on_attach_keysetup(client, bufnr);
   -- 매핑이 제대로 동작하는지 nvim 안에서 :map gd 등을 입력해서 알 수 있다.
   vim.opt_local.signcolumn = 'yes' -- 줄번호 왼쪽에 컬럼 하나를 둬서 W,H등을 표시하는 걸 말한다.
-  vim.api.nvim_create_autocmd(
-    { "BufEnter", "InsertLeave" },
-    { pattern = { "*" },
-      callback = function()
-        vim.lsp.codelens.refresh()
-      end
-    }
-  )
+  -- vim.api.nvim_create_autocmd(
+  --   { "BufEnter", "InsertLeave" },
+  --   { pattern = { "*" },
+  --     callback = function()
+  --       vim.lsp.codelens.refresh()
+  --     end
+  --   }
+  -- )
 
   -- require "lsp_signature".on_attach({ -- signatureHelp 관련,
   --     bind = true,
@@ -181,7 +185,7 @@ local function lsp_on_attach(client, bufnr)
   -- )
 end
 
-function Config_mason()
+local function Config_mason()
   require 'mason'.setup({
     ui = {
       icons = {
@@ -255,13 +259,11 @@ vim.keymap.set({ 'n', 'i', 'v' }, '<F2>', ':cd %:h<CR>', { desc = 'Change Curren
 --vim.keymap.set('n', '<Space>o',
 --  function() require 'key-menu'.open_window('<leader>o') end, {desc='Orgmode'})
 
--- 어느 플러그인에선가 바꾸고 있는 것 같다. 첫부분에 써주면 작동 안하는데,
--- 마지막에 써주면 작동한다.
-set.guicursor = 'n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175'
 -- 이게 디폴트 설정인데, mark 관련 플러그인이 가져가나 보다.
 -- <C-h>를 BS로 쓰려면 아래로 설정해야 한다.
 -- Coq이 로딩할때 가져 가는 것으로 보인다.
-vim.keymap.set({ 'i' }, '<C-h>', '<BS>', { silent = true, noremap = true })
+-- vim.keymap.set({ 'i' }, '<C-h>', '<BS>', { silent = true, noremap = true })
+-- 커서 이동키에 h를 바인딩했다.
 
 -- mini.indentscope
 
@@ -274,8 +276,8 @@ set.completeopt = { 'menu', 'menuone', 'noselect' }
 -- 이를 해결하기 위해 아래 globals를 추가
 
 
-vim.wo.foldmethod = "expr"
-vim.wo.foldexpr = "nvim_treesitter#foldexpr()"
+-- vim.wo.foldmethod = "expr"
+-- vim.wo.foldexpr = "nvim_treesitter#foldexpr()"
 
 -- tree-sitter로 폴딩을 자동으로 만드는 것까진 좋은데, 디폴트로 모두 close 상태다.
 -- 이를 처음 파일을 열면 열어두기 위해 아래 방법을 쓴다.
@@ -287,22 +289,36 @@ vim.wo.foldexpr = "nvim_treesitter#foldexpr()"
 -- )
 
 vim.api.nvim_create_autocmd(
-  { "BufReadPost", "FileReadPost" },
+  { "BufRead" },
   { pattern = "*",
-    command = "cd %:h | normal zR" -- 폴더 열고, Current 디렉토리 바꾸고
+    command = "cd %:h" -- 폴더 열고, Current 디렉토리 바꾸고
   }
 )
 
-
 local plugins = {
+  -- {
+  --   enabled = false,
+  --   lazy = false,
+  --   "nathom/filetype.nvim",
+  --   confing = function()
+  --     require("filetype").setup({
+  --       overrides = {
+  --         extensions = {
+  --           purs = "purescript",
+  --           dhall = "dhall",
+  --           html = "html",
+  --         },
+  --       },
+  --     })
+  --
+  --   end
+  -- },
   { 'sainnhe/everforest',
     lazy = false,
     config = function()
       vim.cmd.colorscheme('everforest')
     end
   },
-
-  --  { 'feline-nvim/feline.nvim', branch = '0.5-compat' },
   { 'nvim-lualine/lualine.nvim',
     lazy = false,
     config = function()
@@ -356,11 +372,11 @@ local plugins = {
     lazy = false,
   },
   { 'purescript-contrib/purescript-vim', branch = 'main',
+    ft = "purescript",
     lazy = true,
-    ft = "purs",
   },
   { 'vmchale/dhall-vim',
-    ft = "dhall",
+    ft = { "dhall" },
     lazy = true,
   },
   { 'iamcco/markdown-preview.nvim',
@@ -388,33 +404,9 @@ local plugins = {
     end
   },
   { 'nvim-tree/nvim-tree.lua',
-    lazy = true,
+    lazy = false,
     config = function()
-
-      require("nvim-tree").setup({
-        sort_by = "case_sensitive",
-        view = {
-          adaptive_size = true,
-          mappings = {
-            list = {
-              { key = "u", action = "dir_up" },
-            },
-          },
-        },
-        renderer = {
-          group_empty = true,
-          highlight_git = true,
-        },
-        filters = {
-          dotfiles = true,
-        },
-        update_focused_file = {
-          enable = true,
-          update_cwd = true,
-        },
-        sync_root_with_cwd = true,
-        respect_buf_cwd = true,
-      })
+      require("nvim-tree").setup()
     end,
     keys = {
       { '<C-n>',
@@ -436,6 +428,25 @@ local plugins = {
     branch = 'main',
     cmd = "Rg",
   },
+  {
+    "smartpde/telescope-recent-files",
+    lazy = true,
+    keys = {
+      { '<space>r',
+        function()
+          return require('telescope').extensions.recent_files.pick()
+        end, desc = 'Recent File',
+      },
+    },
+
+    config = function()
+      require("telescope").load_extension("recent_files")
+    end,
+    dependencies = {
+      'nvim-telescope/telescope.nvim',
+    },
+  },
+
   { 'nvim-telescope/telescope-file-browser.nvim',
     lazy = true,
     keys = {
@@ -516,7 +527,7 @@ local plugins = {
         end, desc = 'Buffers',
       },
       {
-        '<space>r', "<cmd>Telescope resume<cr>", desc = "Resume"
+        '<space>c', "<cmd>Telescope resume<cr>", desc = "Resume"
       },
     },
     config = function()
@@ -549,8 +560,7 @@ local plugins = {
           enable = true,
         },
         ensure_installed = { "haskell", "lua", "javascript", "typescript", "vim", "rust", "python", "graphql", "html",
-          "css",
-          "json" }, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+          "css", "json", "markdown" }, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
         ignore_install = { "" }, -- List of parsers to ignore installing
         highlight = {
           enable = true, -- false로 하면 모든 확장을 비활성화
@@ -588,14 +598,22 @@ local plugins = {
           },
         },
       }
-
-
     end
   },
-  -- { 'kdheepak/lazygit.nvim',
-  --   branch = 'main',
-  --   lazy = true,
-  -- },
+  {
+    'nvim-treesitter/playground',
+    lazy = true,
+    cmd = "TSPlaygroundToggle",
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    config = function()
+      require("nvim-treesitter.configs").setup {
+        playground = {
+          enable = true,
+        }
+      }
+    end
+  },
+
   { 'simrat39/symbols-outline.nvim',
     lazy = true,
     cmd = "SymbolsOutline",
@@ -621,7 +639,7 @@ local plugins = {
   },
   { 'numToStr/Comment.nvim',
     lazy = true,
-    keys = { { "gc", nil, { "n", "v" } }, { "gb", nil, { "n", "v" } } },
+    keys = { { "gc", mode = "v" }, { "gb", mode = "v" } },
     config = function()
       require('Comment').setup()
     end,
@@ -994,7 +1012,14 @@ local plugins = {
     'windwp/nvim-autopairs',
     config = function()
       require("nvim-autopairs").setup {}
+      local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+      local cmp = require('cmp')
+      cmp.event:on(
+        'confirm_done',
+        cmp_autopairs.on_confirm_done()
+      )
     end,
+
   },
   {
     'windwp/nvim-ts-autotag',
@@ -1090,6 +1115,11 @@ local plugins = {
     dependencies = { 'nvim-lua/plenary.nvim' },
     cmd = "Neogit"
   },
+  {
+    'nanotee/zoxide.vim',
+    lazy = false,
+    dependencies = { 'junegunn/fzf' },
+  },
 }
 
 --require("scrollbar").setup{} -- 오른쪽 끝의 텍스트를 가리는 경우가 있다.
@@ -1099,3 +1129,38 @@ local plugins = {
 -- nvim-cmp는 더 많은 타입의 자동완성 제안을 지원한다.
 --
 require("lazy").setup(plugins)
+
+-- 어느 플러그인에선가 바꾸고 있는 것 같다. 첫부분에 써주면 작동 안하는데,
+-- 마지막에 써주면 작동한다.
+set.guicursor = 'n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175'
+
+-- 0.9로 올리고 작동하지 않는다.
+-- 입력 모드일 때만 row를 표시하는 선line을 가린다.
+-- vim.api.nvim_create_autocmd(
+--   { "InsertEnter" },
+--   { pattern = "*",
+--     command = "set nocul" }
+-- )
+-- vim.api.nvim_create_autocmd(
+--   { "InsertLeave" },
+--   { pattern = "*",
+--     command = "set cul" }
+-- )
+
+-- FindClosing = function()
+--
+--   local ts_utils = require "nvim-treesitter.ts_utils"
+--   local starting_node = ts_utils.get_node_at_cursor()
+--   if starting_node == nil then
+--     return
+--   end
+--
+--   local ft = vim.bo.filetype
+--   local br = [[ "(" ")" "[" "]" "{" "}" ]]
+--   local query = vim.treesitter.parse_query(ft, br)
+--
+--   local sr, sc, er, ec = vim.treesitter.get_node_range(starting_node)
+--   vim.api.nvim_win_set_cursor(0, { er, ec + 1 })
+--
+-- end
+vim.keymap.set('n', '<F7>', ':lua Select()<CR>', { desc = 'Test' })

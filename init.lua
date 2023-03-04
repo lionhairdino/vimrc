@@ -73,7 +73,7 @@ vim.g['fzf_commits_log_options'] = '--graph --color=always --format="%C(auto)%h%
 vim.g['fzf_tags_command'] = 'ctags -R'
 -- [Commands] --expect expression for directly executing the command
 vim.g['fzf_commands_expect'] = 'ctrl-enter,ctrl-x'
-vim.g['mkdp_theme'] = 'light' -- markdown preview 플러그인 테마 설정
+vim.g['mkdp_theme'] = 'dark' -- markdown preview 플러그인 테마 설정
 vim.g['mkdp_filetypes'] = { "markdown" }
 --vim.cmd.colorscheme('OceanicNext')
 --vim.g.material_style = "oceanic-next"
@@ -386,6 +386,16 @@ local plugins = {
   },
   { 'MattesGroeger/vim-bookmarks',
     lazy = true,
+    cmd = "BookmarkToggle",
+    keys = {
+      { 'mm',
+        mode = {"n", "v"},
+        ':BookmarkToggle<CR>',
+        silent = true,
+        desc = "Bookmark"
+      },
+    },
+
   },
   { 'kassio/neoterm',
     cmd = 'Tnew',
@@ -515,7 +525,7 @@ local plugins = {
 
   { 'nvim-telescope/telescope.nvim',
     lazy = true,
-    keys = { -- 이렇게 keys 항목으로 하면 키바인딩도 lazy하게 먹는다.
+    keys = {
       { '<space>g',
         function()
           return require('telescope.builtin').live_grep { search_dirs = { '.' } }
@@ -639,7 +649,7 @@ local plugins = {
   },
   { 'numToStr/Comment.nvim',
     lazy = true,
-    keys = { { "gc", mode = "v" }, { "gb", mode = "v" } },
+    keys = { { "gc", mode = {"v", "n"} }, { "gb", mode = "v" } },
     config = function()
       require('Comment').setup()
     end,
@@ -781,11 +791,13 @@ local plugins = {
       "hrsh7th/cmp-nvim-lua",
       "dcampos/nvim-snippy"
     },
-    init = function()
+    config = function()
       -- Set up nvim-cmp.
       -- :CmpStauts로 현재 cmp 상태를 볼 수 있다.
       local cmp = require 'cmp'
-      local select_opts = { behavior = cmp.SelectBehavior.Select }
+      local select_opts = {
+        behavior = cmp.SelectBehavior.Replace,
+      }
 
       cmp.setup({
         snippet = {
@@ -803,7 +815,9 @@ local plugins = {
           ['<C-f>'] = cmp.mapping.scroll_docs(4),
           ['<C-space>'] = cmp.mapping.complete(),
           ['<C-e>'] = cmp.mapping.abort(),
-          ['<CR>'] = cmp.mapping.confirm({ select = true }),
+          ['<CR>'] = cmp.mapping.confirm({
+            select = false,
+          }),
           -- false로 하면 반드시 하나를 선택하라 하고,
           -- true로 하면 첫 번째가 선택되어 있는 걸로 간주한다.
           ['<tab>'] = cmp.mapping.select_next_item(select_opts),
@@ -825,6 +839,7 @@ local plugins = {
         formatting = {
           fields = { 'menu', 'abbr', 'kind' } -- 우선 순위
         },
+        completion = { completopt = 'menu, menuone, noinsert' },
       })
 
       cmp.setup.cmdline({ '/', '?' }, {
@@ -1119,6 +1134,22 @@ local plugins = {
     'nanotee/zoxide.vim',
     lazy = false,
     dependencies = { 'junegunn/fzf' },
+  },
+  {
+    "atusy/tsnode-marker.nvim",
+    lazy = true,
+    init = function()
+      vim.api.nvim_create_autocmd("FileType", {
+        group = vim.api.nvim_create_augroup("tsnode-marker-markdown", {}),
+        pattern = "markdown",
+        callback = function(ctx)
+          require("tsnode-marker").set_automark(ctx.buf, {
+            target = { "code_fence_content" }, -- list of target node types
+            hl_group = "CursorLine", -- highlight group
+          })
+        end,
+      })
+    end,
   },
 }
 
